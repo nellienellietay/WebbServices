@@ -1,0 +1,41 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: sans-serif;
+}
+
+form {
+
+}
+
+#NameAndPicture {
+}
+
+#search {
+    margin-top: 100px;
+}
+
+#searchDestination {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.inputs-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+}
+
+#searchForLocation {
+    width: 200px;
+
+}
+
+input, label {
+    font-size: 1.1rem;
+    padding: 2px;
+}
