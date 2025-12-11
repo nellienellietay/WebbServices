@@ -3,6 +3,7 @@ body {
     flex-direction: column;
     align-items: center;
     font-family: sans-serif;
+    background: linear-gradient(skyblue, white) no-repeat fixed;
 }
 
 form {
