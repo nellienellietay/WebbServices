@@ -1,16 +1,18 @@
+import os
+from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify
 from amadeus import Client, ResponseError
+
+load_dotenv()
 
 app = Flask(__name__)
 
 # Startar Amadeus klienten med nycklarna
 
-'''
 amadeus = Client (
-    client_id = 
-    client_secret = 
+    client_id = os.getenv('AMADEUS_API_KEY'),
+    client_secret = os.getenv('AMADEUS_API_SECRET')
 )
-'''
 
 
 # När man öppnar "http://127.0.0.1:5000/" körs denna funktionen
