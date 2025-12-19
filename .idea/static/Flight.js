@@ -1,40 +1,51 @@
+// hämtar input-fälten
 const fromInput = document.getElementById('fromInput');
-const dataList = document.getElementById('airportList');
+const toInput = document.getElementById('toInput');
 
-// Vi lyssnar på input events, detta körs varje gång användaren skriver in en bokstav
-fromInput.addEventListener('input', async function() {
+//hämtar listorna från HTML
+const fromList = document.getElementById('fromList');
+const toList = document.getElementById('toList');
 
-    const keyword = this.value;
+// Funktion som kopplar både from och to fälten med en datalist
+// och hämtar från Python
+function setupAutoSearch (inputField, dataListElement) {
 
-    // Vi söker bara efter flygplatser om användaren har skrivit in 3 bokstäver
-    // Annars blir det onödiga API calls
-    if (keyword.length < 3)
-        return;
+    inputField.addEventListener('input', async function() {
+        const keyword = this.value;
 
-    try {
-        // Skickar keyword till vår python "/search_airports"
-        const response = await fetch(`/search_airports?keyword=${keyword}`);
+        // Vi söker bara efter flygplatser om användaren har skrivit in 3 bokstäver
+        // Annars blir det onödiga API calls
+        if (keyword.length < 3)
+            return;
 
-        // Gör om text till ett användbart JS objekt
-        const airports = await response.json();
+        try {
+            // Skickar keyword till vår python "/search_airports"
+            const response = await fetch(`/search_airports?keyword=${keyword}`);
 
-        // Ta bort gamla sökningar
-        dataList.innerHTML = '';
+            // Gör om text till ett användbart JS objekt
+            const airports = await response.json();
 
-        // Loopa genom airports som vi fick tillbaka
-        airports.forEach(airport => {
+            // Ta bort gamla resultat
+            dataListElement.innerHTML = '';
 
-            // Skapar ett <option> tag (dropdown)
-            const option = document.createElement('option');
+            // Loopa genom airports som vi fick tillbaka
+            airports.forEach(airport => {
 
-            // Vi sätter flyplatsen namn först och sedan
-            // iata koden som är den unika koden för flygplatserna
-            option.value = `${airport.name} (${airport.iataCode})`;
+                // Skapar ett <option> tag (dropdown)
+                const option = document.createElement('option');
 
-            // Lägger till option i dataList containern
-            dataList.appendChild(option);
-        });
-    } catch (error) {
-        console.error('Error fetching airports:', error);
-    }
-});
+                // Vi sätter flyplatsen namn först och sedan
+                // iata koden som är den unika koden för flygplatserna
+                option.value = `${airport.name} (${airport.iataCode})`;
+
+                // Lägger till option i dataList containern
+                dataListElement.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error fetching airports:', error);
+        }
+    });
+}
+
+setupAutoSearch(fromInput, fromList)
+setupAutoSearch(toInput, toList)
