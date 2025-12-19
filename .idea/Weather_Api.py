@@ -8,7 +8,7 @@ def get_weather(city):
         return None
     
     # Hämtar api-nyckeln från .env 
-    api_key = os.getenv('OPENWEATHER_API_KEY')
+    api_key = os.getenv('OPENWEATHERMAP_API_KEY')
 
     if not api_key:
         return None
@@ -26,17 +26,20 @@ def get_weather(city):
     # Skickar HTTP GET-request till API
     response = requests.get(url, params=params)
 
+    # Om APIt inte svarar korrekt
     if response.status_code != 200:
         return None
     
+    # Gör om svaret från JSON till Python-dictionary
     data = response.json()
 
-    # Plockar ut relevant info
+    # Plockar ut relevant info till vårt dictionary
     weather_data = {
-        "city": data["main"]["temp"],
+        "city": data["name"],
         "temperature": data["main"]["temp"],
         "description": data["weather"][0]["description"],
         "wind_speed": data["wind"]["speed"]
     }
 
+    # Returnerar den bearbetade väderdatan
     return weather_data

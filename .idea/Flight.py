@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from Amadeus_Api import get_airports
+from Weather_Api import get_weather
 
 app = Flask(__name__)
 
@@ -29,6 +30,23 @@ def search_airports():
     airports_data = get_airports(keyword)
 
     return jsonify(airports_data)
+
+# Detta är en endpoint för vårt väder-API som frontend pratar med. Denna endpoint
+# anropar get_weather funtkionen som i sin tur hämtar och bearbetar väderdatan.
+@app.route('/weather')
+def weather():
+
+    # Hämtar stadens namn från query parameter
+    city = request.args.get('city')
+
+    # Anropar väderfunktionen från Weather_Api.py filen
+    weather_data = get_weather(city)
+
+    # Felhantering
+    if not weather_data:
+        return jsonify({"Error": "Could not fetch weather data"}), 400
+    
+    return jsonify(weather_data)
 
 #starta programmet
 if __name__ == '__main__':
