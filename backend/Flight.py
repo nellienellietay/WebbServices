@@ -48,6 +48,17 @@ def weather():
     
     return jsonify(weather_data)
 
+@app.route('/monthly_weather')
+def monthly_weather():
+    city = request.args.get('city')
+
+    lat, lon = get_coordinates(city) #koordinater för staden
+    daily_data = get_daily_weather(lat,lon) # hämta dagligt väder
+    stats = calculate_statistics(daily_data) #räkna ut statistik (medelvärde, lägsta, högsta)
+
+    return jsonify(stats) #retunerar statistik
+    
+
 #starta programmet
 if __name__ == '__main__':
     # debug=True gör en auto refresh när saker förändras

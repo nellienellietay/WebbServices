@@ -47,5 +47,39 @@ function setupAutoSearch (inputField, dataListElement) {
     });
 }
 
+
+
 setupAutoSearch(fromInput, fromList)
 setupAutoSearch(toInput, toList)
+
+//hämtar och visar väder för en stad 
+async function fetchAndDisplayWeather(city) {
+    if (!city) return; // om 
+
+
+    try{
+        const response = await fetch(`/monthly_weather?city=${city}`);
+
+        if(!response.ok){
+            throw new Error("Weather request failed");
+        }
+
+        const weather = await response.json();
+
+        //väljer var vi vill visa resultatet 
+        const container = document.getElementById("weatherResult");
+
+        container.innerHTML =
+            <h3>Väderstatistik för ${city}</h3>
+            <p>🌞 Medel dagtemp: ${data.avg_day} °C</p>
+            <p>🌙 Medel natttemp: ${data.avg_night} °C</p>
+            <p>⬇️ Lägsta temp: ${data.min_temp} °C</p>
+            <p>⬆️ Högsta temp: ${data.max_temp} °C</p>
+        ;
+        
+    }
+    catch (error) {
+        console.error(error);
+    }
+    
+}
