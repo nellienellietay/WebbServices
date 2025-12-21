@@ -13,7 +13,7 @@ else:
     load_dotenv(dotenv_path=backend_dir / ".env")
 
 # Hämtar väderdata från en stad, returnerar dictionary med relevanta data eller None vid fel
-def get_weather(city):
+def get_current_weather(city):
 
     if not city:
         return None

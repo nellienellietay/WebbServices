@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from services.Amadeus_Api import get_airports
-from services.Weather_Api import get_weather, get_coordinates, get_daily_weather, calculate_statistics
+from services.Weather_Api import get_current_weather, get_coordinates, get_daily_weather, calculate_statistics
 
 app = Flask(__name__)
 
@@ -32,7 +32,8 @@ def search_airports():
     return jsonify(airports_data)
 
 # Detta är en endpoint för vårt väder-API som frontend pratar med. Denna endpoint
-# anropar get_weather funtkionen som i sin tur hämtar och bearbetar väderdatan.
+# anropar get_current_weather funtkionen som i sin tur hämtar och bearbetar väderdatan.
+# exempelurl: /current_weather?city=Stockholm
 @app.route('/current_weather')
 def current_weather():
 
@@ -40,7 +41,7 @@ def current_weather():
     city = request.args.get('city')
 
     # Anropar väderfunktionen från Weather_Api.py filen
-    weather_data = get_weather(city)
+    weather_data = get_current_weather(city)
 
     # Felhantering
     if not weather_data:
@@ -57,6 +58,41 @@ def monthly_weather():
     stats = calculate_statistics(daily_data) #räkna ut statistik (medelvärde, lägsta, högsta)
 
     return jsonify(stats) #retunerar statistik
+
+# mashup-endpoint som kombinerar flyg & aktuellt väder
+# exempel: /search_airports_with_weather?keyword=STO
+@app.route('/search_airports_with_weather')
+def search_airports_with_weather():
+
+    # hämtar användarens inskickade keyword
+    keyword = request.args.get('keyword')
+
+    # hämtar flygplatser baserat på keyword
+    airports = get_airports(keyword)
+
+    # lista (flyg + väder)
+    results = []
+
+    for airport in airports: # loopar igenom varje flygplats 
+
+        city = airport.get("cityName") #försöker hämta stadens namn från Amadeus
+
+        if not city: 
+            continue
+ 
+        weather = get_current_weather(city) #hämtar väder 
+
+        if not weather:
+            continue
+
+        combined_result = {
+            "airport": airport,
+            "weather": weather
+        }
+
+        results.append(combined_result)
+
+    return jsonify(results)
     
 
 #starta programmet
