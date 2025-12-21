@@ -6,10 +6,13 @@ load_dotenv()
 
 #starta klient
 
+print("AMADEUS_API_KEY:", os.getenv("AMADEUS_API_KEY"))
+
 amadeus = Client (
     client_id = os.getenv('AMADEUS_API_KEY'),
     client_secret = os.getenv('AMADEUS_API_SECRET')
 )
+
 
 
 # Hämtar data och ger en lista
