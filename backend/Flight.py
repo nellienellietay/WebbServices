@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
-from Amadeus_Api import get_airports
-from Weather_Api import get_weather
+from services.Amadeus_Api import get_airports
+from services.Weather_Api import get_weather, get_coordinates, get_daily_weather, calculate_statistics
 
 app = Flask(__name__)
 

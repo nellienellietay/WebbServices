@@ -1,6 +1,16 @@
 import os
+from pathlib import Path
 from amadeus import Client, ResponseError
 from dotenv import load_dotenv
+
+current_dir = Path(__file__).resolve().parent
+backend_dir = current_dir.parent
+root_dir = backend_dir
+
+if (root_dir / ".env").exists():
+    load_dotenv(dotenv_path=root_dir / ".env")
+else:
+    load_dotenv(dotenv_path=backend_dir / ".env")
 
 load_dotenv()
 

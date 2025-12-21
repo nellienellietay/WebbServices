@@ -69,13 +69,13 @@ async function fetchAndDisplayWeather(city) {
         //väljer var vi vill visa resultatet 
         const container = document.getElementById("weatherResult");
 
-        container.innerHTML =
+        container.innerHTML = `
             <h3>Väderstatistik för ${city}</h3>
-            <p>🌞 Medel dagtemp: ${data.avg_day} °C</p>
-            <p>🌙 Medel natttemp: ${data.avg_night} °C</p>
-            <p>⬇️ Lägsta temp: ${data.min_temp} °C</p>
-            <p>⬆️ Högsta temp: ${data.max_temp} °C</p>
-        ;
+            <p>🌞 Medel dagtemp: ${weather.avg_day} °C</p>
+            <p>🌙 Medel natttemp: ${weather.avg_night} °C</p>
+            <p>⬇️ Lägsta temp: ${weather.min_temp} °C</p>
+            <p>⬆️ Högsta temp: ${weather.max_temp} °C</p>
+        `;
         
     }
     catch (error) {
