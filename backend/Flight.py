@@ -33,8 +33,8 @@ def search_airports():
 
 # Detta är en endpoint för vårt väder-API som frontend pratar med. Denna endpoint
 # anropar get_weather funtkionen som i sin tur hämtar och bearbetar väderdatan.
-@app.route('/weather')
-def weather():
+@app.route('/current_weather')
+def current_weather():
 
     # Hämtar stadens namn från query parameter
     city = request.args.get('city')
