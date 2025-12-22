@@ -63,13 +63,21 @@
 </div>
 
 <div id="scrollFlyg" class="scrollflyg">
-    <div id="flyg1" class="flyg">
-    <h1>Flyg1 pris tid </h1>
-    </div>
-    <div>
-        <h1>flyg 2 pris tid</h1>
-    </div>
-</div>
+    {% if error %}
+      <p>{{ error }}</p>
+    {% endif %}
+  
+    {% for f in flights %}
+      <div class="flyg">
+        <h2>{{ f.depart_iata }} -> {{ f.arrive_iata }}</h2>
+        <p>{{ f.depart_at }} -> {{ f.arrive_at }}</p>
+        <p>Stops: {{ f.stops }} | Duration: {{ f.duration }}</p>
+        <p>Price: {{ f.price }} {{ f.currency }}</p>
+      </div>
+    {% endfor %}
+  </div>
+  
+  
 
 
 
