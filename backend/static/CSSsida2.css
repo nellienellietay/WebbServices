@@ -1,11 +1,11 @@
 body {
-
+    /* centrera allt */
     flex-direction: row;
     align-items: center;
     font-family: sans-serif;
     background: linear-gradient(skyblue, white) no-repeat fixed;
 }
-
+/*  rubriken */
 #info_flyg{
     display: block;
     background-color: aqua;
@@ -15,12 +15,11 @@ body {
     margin-left: 30%;
 
 }
-div.info{
+div.info{ 
 
 }
 
 div.scrollmenu {
-
     margin-top: 30px;
     background-color: blueviolet;
     height: 150px;
@@ -32,24 +31,58 @@ div.scrollmenu {
     border: 1px solid #ccc;
     scroll-behavior: smooth;
 }
-
+/*  huvudbehållaren som innehåller flyglistorna */
 div.scrollflyg{
-    display: block;
-    position: absolute;
-    top: 400px;
-    left: 50%;
-    transform: translateX(-50%);
+    
+    display: flex;         
+    gap: 20px;
+    padding: 15px;
+
     background: #FFEFF9;
-    height: 1000px;
-    width: 600px;
-    gap: 10px;
-    overflow: auto;
-    white-space: nowrap;
+    width: 900px;
+    max-width: 95vw;
+    height: 600px;
 
+    margin: 30px auto 0; /* center/horizontally */
+  
+
+    overflow: hidden;       
     border: 1px solid #ccc;
-    scroll-behavior: smooth;
-
+    border-radius: 8px;
 }
+
+/*  flyglistan */
+.flight-list{
+    flex: 1;
+    min-width: 0;       
+    overflow-y: auto;       /* egen scroll */
+    padding: 10px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+/*  rubriken i flyglistan  */
+.flight-list h1{
+    margin: 0 0 10px 0;
+    font-size: 18px;
+}
+/*  Stil för varje flyginfo  */
+.flyg{
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+/*  texten i varje flyginfo  */
+.flyg p{
+    white-space: normal;
+    margin: 4px 0;
+}
+
+
+
+
 
 .weather {
     width: 100px;

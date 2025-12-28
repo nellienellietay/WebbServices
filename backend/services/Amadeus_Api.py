@@ -1,86 +1,158 @@
 import os
 import re
+import time
 from pathlib import Path
-from amadeus import Client, ResponseError
+
+import requests
 from dotenv import load_dotenv
 
-current_dir = Path(__file__).resolve().parent
-backend_dir = current_dir.parent
-root_dir = backend_dir
+# -----------------------
+# Load .env from backend/.env
+# -----------------------
+backend_dir = Path(__file__).resolve().parent.parent  # .../backend
+load_dotenv(dotenv_path=backend_dir / ".env")
 
-if (root_dir / ".env").exists():
-    load_dotenv(dotenv_path=root_dir / ".env")
-else:
-    load_dotenv(dotenv_path=backend_dir / ".env")
+KEY_OK = bool(os.getenv("AMADEUS_API_KEY"))
+SECRET_OK = bool(os.getenv("AMADEUS_API_SECRET"))
+print("KEY loaded:", KEY_OK)
+print("SECRET loaded:", SECRET_OK)
 
-# Create client ONCE, at module level
-amadeus = Client(
-    client_id=os.getenv("AMADEUS_API_KEY"),
-    client_secret=os.getenv("AMADEUS_API_SECRET")
-)
+BASE_URL = "https://test.api.amadeus.com"  # change only if you truly use production
 
-def get_airports(keyword: str):
-    if not keyword:
-        return []
-    try:
-        resp = amadeus.reference_data.locations.get(
-            keyword=keyword,
-            subType="AIRPORT"
-        )
-        out = []
-        for item in resp.data:
-            out.append({
-                "name": item.get("name", ""),
-                "iataCode": item.get("iataCode", "")
-            })
-        return out
-    except ResponseError as error:
-        print(f"Amadeus Error (get_airports): {error}")
-        return []
+_token_cache = {
+    "access_token": None,
+    "expires_at": 0.0,
+}
+
 
 def _iata(value: str) -> str:
     if not value:
         return ""
-    m = re.search(r"\(([A-Z]{3})\)", value.upper())
-    return m.group(1) if m else value.strip().upper()
+    v = value.strip().upper()
+
+    if len(v) == 3 and v.isalpha():
+        return v
+
+    m = re.search(r"\(([A-Z]{3})\)", v)
+    if m:
+        return m.group(1)
+
+    return ""
+
+
+def _get_access_token() -> str:
+    now = time.time()
+    if _token_cache["access_token"] and now < _token_cache["expires_at"]:
+        return _token_cache["access_token"]
+
+    client_id = os.getenv("AMADEUS_API_KEY")
+    client_secret = os.getenv("AMADEUS_API_SECRET")
+    if not client_id or not client_secret:
+        raise RuntimeError("Missing AMADEUS_API_KEY or AMADEUS_API_SECRET")
+
+    url = f"{BASE_URL}/v1/security/oauth2/token"
+    data = {
+        "grant_type": "client_credentials",
+        "client_id": client_id,
+        "client_secret": client_secret,
+    }
+
+    r = requests.post(url, data=data, timeout=15)
+    if r.status_code != 200:
+        raise RuntimeError(f"Token request failed: {r.status_code} - {r.text[:300]}")
+
+    payload = r.json()
+    access_token = payload.get("access_token")
+    expires_in = payload.get("expires_in", 1800)
+
+    if not access_token:
+        raise RuntimeError(f"Token response missing access_token - {payload}")
+
+    # small safety margin
+    _token_cache["access_token"] = access_token
+    _token_cache["expires_at"] = now + int(expires_in) - 30
+    return access_token
+
+
+def _auth_headers() -> dict:
+    return {"Authorization": f"Bearer {_get_access_token()}"}
+
+
+def get_airports(keyword: str):
+    if not keyword:
+        return []
+
+    url = f"{BASE_URL}/v1/reference-data/locations"
+    params = {
+        "keyword": keyword,
+        "subType": "AIRPORT,CITY",
+    }
+
+    r = requests.get(url, headers=_auth_headers(), params=params, timeout=15)
+    if r.status_code != 200:
+        # return [] for autocomplete, but with a visible server log
+        print("get_airports failed:", r.status_code, "-", r.text[:300])
+        return []
+
+    data = r.json().get("data", [])
+    out = []
+    for item in data:
+        out.append({
+            "name": item.get("name", ""),
+            "iataCode": item.get("iataCode", "")
+        })
+    return out
+
 
 def search_flights(where_from: str, where_to: str, date: str, adults: int = 1, limit: int = 10):
     origin = _iata(where_from)
     dest = _iata(where_to)
 
-    if not origin or not dest or not date:
-        return []
+    if len(origin) != 3 or len(dest) != 3:
+        raise ValueError(f"Invalid IATA. origin='{origin}', dest='{dest}'")
 
-    try:
-        resp = amadeus.shopping.flight_offers_search.get(
-            originLocationCode=origin,
-            destinationLocationCode=dest,
-            departureDate=date,
-            adults=adults,
-            max=limit,
-            currencyCode="EUR"
-        )
+    if not date:
+        raise ValueError("Missing departure date")
 
-        flights = []
-        for offer in resp.data:
-            itin = offer["itineraries"][0]
-            segs = itin["segments"]
-            first = segs[0]
-            last = segs[-1]
+    url = f"{BASE_URL}/v2/shopping/flight-offers"
+    params = {
+        "originLocationCode": origin,
+        "destinationLocationCode": dest,
+        "departureDate": date,
+        "adults": adults,
+        "max": limit,
+        "currencyCode": "EUR",
+    }
 
-            flights.append({
-                "price": offer["price"]["total"],
-                "currency": offer["price"]["currency"],
-                "depart_at": first["departure"]["at"],
-                "depart_iata": first["departure"]["iataCode"],
-                "arrive_at": last["arrival"]["at"],
-                "arrive_iata": last["arrival"]["iataCode"],
-                "stops": len(segs) - 1,
-                "duration": itin.get("duration", "")
-            })
+    r = requests.get(url, headers=_auth_headers(), params=params, timeout=20)
+    if r.status_code != 200:
+        raise RuntimeError(f"Flight search failed: {r.status_code} - {r.text[:400]}")
 
-        return flights
+    offers = r.json().get("data", [])
+    print("Amadeus offers:", len(offers))
 
-    except ResponseError as error:
-        print(f"Amadeus Error (search_flights): {error}")
-        return []
+    flights = []
+    for offer in offers:
+        itineraries = offer.get("itineraries", [])
+        if not itineraries:
+            continue
+        itin = itineraries[0]
+        segs = itin.get("segments", [])
+        if not segs:
+            continue
+
+        first = segs[0]
+        last = segs[-1]
+
+        flights.append({
+            "price": offer.get("price", {}).get("total"),
+            "currency": offer.get("price", {}).get("currency"),
+            "depart_at": first.get("departure", {}).get("at"),
+            "depart_iata": first.get("departure", {}).get("iataCode"),
+            "arrive_at": last.get("arrival", {}).get("at"),
+            "arrive_iata": last.get("arrival", {}).get("iataCode"),
+            "stops": max(len(segs) - 1, 0),
+            "duration": itin.get("duration", ""),
+        })
+
+    return flights

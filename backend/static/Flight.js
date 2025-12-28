@@ -36,7 +36,9 @@ function setupAutoSearch (inputField, dataListElement) {
 
                 // Vi sätter flyplatsen namn först och sedan
                 // iata koden som är den unika koden för flygplatserna
-                option.value = `${airport.name} (${airport.iataCode})`;
+                option.value = airport.iataCode;
+                option.label = airport.name; // visar namnet i dropdown
+
 
                 // Lägger till option i dataList containern
                 dataListElement.appendChild(option);
