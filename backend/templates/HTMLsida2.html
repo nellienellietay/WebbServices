@@ -63,21 +63,68 @@
 </div>
 
 <div id="scrollFlyg" class="scrollflyg">
-    <div id="flyg1" class="flyg">
-    <h1>Flyg1 pris tid </h1>
-    </div>
-    <div>
-        <h1>flyg 2 pris tid</h1>
-    </div>
-</div>
 
-
-
-
-
-
-
-
+    {% if error %}
+      <p>{{ error }}</p>
+    {% endif %}
+  
+    {% if flights and flights|length > 0 %}
+  
+      <div class="flight-list" id="departureList">
+        <h1>Departure flights</h1>
+  
+        {% set dep_count = 0 %} <!-- Counter so we can show a message if no departure flights were found -->
+        {% for f in flights %}  <!-- Loop all flights but only render those tagged as "Departure" -->
+          {% if f.leg == "Departure" %} <!-- Check if the flight is a departure flight -->
+            {% set dep_count = dep_count + 1 %}
+            <div class="flyg">
+              <h2>{{ f.depart_iata }} - {{ f.arrive_iata }}</h2>
+              <p>{{ f.search_date }}</p>
+              <p>{{ f.depart_at }} - {{ f.arrive_at }}</p>
+              <p>Stops: {{ f.stops }} - Duration: {{ f.duration }}</p>
+              <p>Price: {{ f.price }} {{ f.currency }}</p>
+            </div>
+          {% endif %}
+        {% endfor %}
+  
+        {% if dep_count == 0 %}
+          <p>...</p>
+        {% endif %}
+      </div>
+  
+      <div class="flight-list" id="returnList">
+        <h1>Return flights</h1>
+  
+        {% set ret_count = 0 %}
+        {% for f in flights %} 
+          {% if f.leg == "Return" %}
+            {% set ret_count = ret_count + 1 %}
+            <div class="flyg">
+              <h2>{{ f.depart_iata }} - {{ f.arrive_iata }}</h2>
+              <p>{{ f.search_date }}</p>
+              <p>{{ f.depart_at }} - {{ f.arrive_at }}</p>
+              <p>Stops: {{ f.stops }} - Duration: {{ f.duration }}</p>
+              <p>Price: {{ f.price }} {{ f.currency }}</p>
+            </div>
+          {% endif %}
+        {% endfor %}
+  
+        {% if ret_count == 0 %}
+          <p>...</p>
+        {% endif %}
+      </div>
+  
+    {% else %}
+      {% if not error %}
+        <p>No flights returned. Try different airports or a different date.</p>
+      {% endif %}
+    {% endif %}
+  
+  </div>
+  
+  
+  
+  
 
 </body>
 </html>

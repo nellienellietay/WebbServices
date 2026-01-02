@@ -36,7 +36,9 @@ function setupAutoSearch (inputField, dataListElement) {
 
                 // Vi sätter flyplatsen namn först och sedan
                 // iata koden som är den unika koden för flygplatserna
-                option.value = `${airport.name} (${airport.iataCode})`;
+                option.value = airport.iataCode;
+                option.label = airport.name; // visar namnet i dropdown
+
 
                 // Lägger till option i dataList containern
                 dataListElement.appendChild(option);
@@ -47,10 +49,17 @@ function setupAutoSearch (inputField, dataListElement) {
     });
 }
 
+// Guard: autocomplete ska bara aktiveras på sidor där sökfält finns 
+// och det finns ej på HTMLsida2.html. Denna Guard säkerställer att koden endast körs när det finns sökfält.
 
+if (fromInput && fromList) {
+    setupAutoSearch(fromInput, fromList);
+}
 
-setupAutoSearch(fromInput, fromList)
-setupAutoSearch(toInput, toList)
+if (toInput && toList) {
+    setupAutoSearch(toInput, toList)
+}
+
 
 //hämtar och visar väder för en stad 
 async function fetchAndDisplayWeather(city) {
