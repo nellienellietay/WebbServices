@@ -1,25 +1,32 @@
 from flask import Flask, render_template, request, jsonify
-from services.Amadeus_Api import get_airports, search_flights
+from services.Amadeus_Api import get_airports, search_flights, get_airport_by_iata
 from services.Weather_Api import get_current_weather, get_coordinates, get_daily_weather, calculate_statistics
 
-"""här sker mashup, funktionen slår upp desstinationens flygplats,
-tar lat/lon, hämtar aktuellt väder och returnerar ett väderobjekt"""
 def get_destination_weather(arrive_iata):
-    airports = get_airports(arrive_iata)
-    if not airports:
+    """
+    Mashup-koppling: tar destinationens IATA-kod från flygsökningen, hämtar flygplatsens
+    koordinater via Amadeus (geoCode) och använder sedan OpenWeather för att hämta
+    aktuellt väder för destinationen.
+    """
+    airport = get_airport_by_iata(arrive_iata)
+    if not airport:
         return None
-    
-    geo = airports[0].get("geoCode")
+
+    geo = airport.get("geoCode")
     if not geo:
         return None
-    
+
     lat = geo.get("latitude")
     lon = geo.get("longitude")
     if lat is None or lon is None:
         return None
     
-    return get_current_weather(lat, lon)
+    weather = get_current_weather(lat, lon)
+    if not weather:
+        return None
 
+    weather["place_label"] = airport.get("name") or arrive_iata
+    return weather
 
 app = Flask(__name__) 
 
@@ -28,7 +35,6 @@ app = Flask(__name__)
 @app.route('/')
 def search():
     return render_template('search.html') 
-
 
 # Detta är en endpoint. Vår browser pratar med denna, inte med Amadeus direkt.
 # T.ex /search_airports?keyword=HEA
@@ -66,12 +72,10 @@ def results():
             f["search_date"] = return_date
         flights_all.extend(ret)
 
-        ## Hämtar aktuellt väder för destinationen (en gång) baserat på första flygets ankomstflygplats.
-        # Samma väder används för alla flyg eftersom alla landar i samma stad.
+        ## Hämtar aktuellt väder för destinationen
         weather = None
         if flights_all:
             weather = get_destination_weather(flights_all[0]["arrive_iata"])
-            print("WEATHER:", weather)
 
         return render_template(
             "HTMLsida2.html", 
@@ -81,7 +85,6 @@ def results():
 
     except Exception as e:
         return render_template("HTMLsida2.html", flights=[], error=str(e))
-
 
 # API endpoint för att hämta flygdata i JSON-format
 @app.route("/api/flights")

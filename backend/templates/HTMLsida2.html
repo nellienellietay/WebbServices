@@ -74,7 +74,7 @@
 
       {% if weather %}
       <div class="destination-weather">
-        <strong>{{ weather.city }}</strong> –
+        <strong>{{ weather.place_label or weather.city}}</strong> –
         {{ weather.temperature }}°C,
         {{ weather.description }}
       </div>

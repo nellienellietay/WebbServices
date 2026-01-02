@@ -14,7 +14,9 @@ else:
 
 # Hämtar väderdata, returnerar dictionary med relevanta data eller None vid fel
 def get_current_weather(lat, lon):
+
     api_key = os.getenv('OPENWEATHERMAP_API_KEY')
+
     if not api_key:
         return None
     

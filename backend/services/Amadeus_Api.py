@@ -85,7 +85,8 @@ def get_airports(keyword: str):
     url = f"{BASE_URL}/v1/reference-data/locations"
     params = {
         "keyword": keyword,
-        "subType": "AIRPORT,CITY",
+        "subType": "AIRPORT",
+        "view": "LIGHT"
     }
 
     r = requests.get(url, headers=_auth_headers(), params=params, timeout=15)
@@ -98,8 +99,9 @@ def get_airports(keyword: str):
     out = []
     for item in data:
         out.append({
-            "name": item.get("name", ""),
-            "iataCode": item.get("iataCode", "")
+            "name": item.get("name",),
+            "iataCode": item.get("iataCode"),
+            "geoCode": item.get("geoCode")
         })
     return out
 
@@ -156,3 +158,48 @@ def search_flights(where_from: str, where_to: str, date: str, adults: int = 1, l
         })
 
     return flights
+
+def get_airport_by_iata(iata: str):
+    """
+    Hämtar exakt flygplats via IATA-kod (tex BCN) så vi får geoCode (lat/lon). Detta behövs 
+    för mashupen eftersom OpenWeather kräver koordinater för att hämta aktuellt väder.
+    """
+    iata = _iata(iata)
+    if not iata or len(iata) != 3:
+        return None
+
+    url = f"{BASE_URL}/v1/reference-data/locations"
+    params = {
+        "keyword": iata,
+        "subType": "AIRPORT",
+        "view": "FULL",
+        "page[limit]": 10
+    }
+
+    r = requests.get(url, headers=_auth_headers(), params = params, timeout=15)
+    if r.status_code != 200:
+        print("get_airport_by_iata failed:", r.status_code, r.text[:300])
+        return None
+
+    data = r.json().get("data", [])
+    if not data:
+        return None
+    
+    # Välj träff som matchar exakt IATA-kod + AIRPORT och som faktiskt har geoCode.
+    match = next(
+        (x for x in data
+         if x.get("iataCode") == iata
+         and x.get("subType") == "AIRPORT"
+         and x.get("geoCode")),
+        None
+    )
+
+    if not match:
+        return None
+
+    return {
+        "iataCode": match.get("iataCode"),
+        "geoCode": match.get("geoCode"),
+        "name": match.get("name"),
+        "id": match.get("id"),
+    }
