@@ -80,19 +80,19 @@ def get_coordinates(city):
     if not data:
         return None, None
     
-    return data[0]["lat"], data[0]["long"]
+    return data[0]["lat"], data[0]["lon"]
 
 #för att hämta dagligt väder
-def get_daily_weather(lat,long):
+def get_daily_weather(lat,lon):
     url = "https://api.openweathermap.org/data/3.0/onecall"
 
     api_key = os.getenv('OPENWEATHERMAP_API_KEY')
 
     params = {
         "lat" : lat,
-        "long" : long,
+        "lon" : lon,
         "exclude": "currently,minutely,hourly,alerts",
-        "units": "metrics",
+        "units": "metric",
         "appid": api_key
     }
 
