@@ -13,6 +13,7 @@
 
 <div id="weatherResult"></div>
 
+<!--används ej-->
 <div id="info_land" class="info">
     <h1> väder i spanien</h1>
 </div>
@@ -62,6 +63,7 @@
 </div>
 </div>
 
+
 <div id="scrollFlyg" class="scrollflyg">
 
     {% if error %}
@@ -69,7 +71,15 @@
     {% endif %}
   
     {% if flights and flights|length > 0 %}
-  
+
+      {% if weather %}
+      <div class="destination-weather">
+        <strong>{{ weather.city }}</strong> –
+        {{ weather.temperature }}°C,
+        {{ weather.description }}
+      </div>
+      {% endif %}
+
       <div class="flight-list" id="departureList">
         <h1>Departure flights</h1>
   
@@ -91,7 +101,7 @@
           <p>...</p>
         {% endif %}
       </div>
-  
+
       <div class="flight-list" id="returnList">
         <h1>Return flights</h1>
   
@@ -122,11 +132,8 @@
   
   </div>
   
-  
-  
-  
+<script src="{{ url_for('static', filename='Flight.js') }}"></script> 
 
 </body>
 </html>
 
-<script src="{{ url_for('static', filename='Flight.js') }}"></script>

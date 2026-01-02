@@ -2,6 +2,25 @@ from flask import Flask, render_template, request, jsonify
 from services.Amadeus_Api import get_airports, search_flights
 from services.Weather_Api import get_current_weather, get_coordinates, get_daily_weather, calculate_statistics
 
+"""här sker mashup, funktionen slår upp desstinationens flygplats,
+tar lat/lon, hämtar aktuellt väder och returnerar ett väderobjekt"""
+def get_destination_weather(arrive_iata):
+    airports = get_airports(arrive_iata)
+    if not airports:
+        return None
+    
+    geo = airports[0].get("geoCode")
+    if not geo:
+        return None
+    
+    lat = geo.get("latitude")
+    lon = geo.get("longitude")
+    if lat is None or lon is None:
+        return None
+    
+    return get_current_weather(lat, lon)
+
+
 app = Flask(__name__) 
 
 # När man öppnar "http://127.0.0.1:5000/" körs denna funktionen
@@ -47,7 +66,18 @@ def results():
             f["search_date"] = return_date
         flights_all.extend(ret)
 
-        return render_template("HTMLsida2.html", flights=flights_all, error=None)
+        ## Hämtar aktuellt väder för destinationen (en gång) baserat på första flygets ankomstflygplats.
+        # Samma väder används för alla flyg eftersom alla landar i samma stad.
+        weather = None
+        if flights_all:
+            weather = get_destination_weather(flights_all[0]["arrive_iata"])
+            print("WEATHER:", weather)
+
+        return render_template(
+            "HTMLsida2.html", 
+            flights=flights_all, 
+            weather=weather,
+            error=None)
 
     except Exception as e:
         return render_template("HTMLsida2.html", flights=[], error=str(e))
