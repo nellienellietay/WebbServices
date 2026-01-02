@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from services.Amadeus_Api import get_airports, search_flights
-from services.Weather_Api import get_weather, get_coordinates, get_daily_weather, calculate_statistics
+from services.Weather_Api import get_current_weather, get_coordinates, get_daily_weather, calculate_statistics
 
 app = Flask(__name__) 
 
@@ -68,7 +68,7 @@ def api_flights():
 @app.route('/current_weather')
 def current_weather():
     city = request.args.get('city')
-    weather_data = get_weather(city)
+    weather_data = get_current_weather(city)
 
     if not weather_data:
         return jsonify({"Error": "Could not fetch weather data"}), 400
@@ -86,6 +86,40 @@ def monthly_weather():
 
     return jsonify(stats)
 
+# mashup-endpoint som kombinerar flyg & aktuellt väder
+# exempel: /search_airports_with_weather?keyword=STO
+@app.route('/search_airports_with_weather')
+def search_airports_with_weather():
+
+    # hämtar användarens inskickade keyword
+    keyword = request.args.get('keyword')
+
+    # hämtar flygplatser baserat på keyword
+    airports = get_airports(keyword)
+
+    # lista (flyg + väder)
+    results = []
+
+    for airport in airports: # loopar igenom varje flygplats 
+
+        city = airport.get("cityName") #försöker hämta stadens namn från Amadeus
+
+        if not city: 
+            continue
+ 
+        weather = get_current_weather(city) #hämtar väder 
+
+        if not weather:
+            continue
+
+        combined_result = {
+            "airport": airport,
+            "weather": weather
+        }
+
+        results.append(combined_result)
+
+    return jsonify(results)
 
 # starta programmet
 if __name__ == '__main__':
