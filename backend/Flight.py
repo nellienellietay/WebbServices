@@ -120,7 +120,7 @@ def search_airports_with_weather():
 
         results.append(combined_result)
 
-        return jsonify(results)
+    return jsonify(results)
 
 # starta programmet
 if __name__ == '__main__':
