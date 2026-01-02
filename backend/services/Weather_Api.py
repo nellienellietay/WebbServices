@@ -91,7 +91,7 @@ def get_daily_weather(lat,lon):
     params = {
         "lat" : lat,
         "lon" : lon,
-        "exclude": "currently,minutely,hourly,alerts",
+        "exclude": "current,minutely,hourly,alerts",
         "units": "metric",
         "appid": api_key
     }
