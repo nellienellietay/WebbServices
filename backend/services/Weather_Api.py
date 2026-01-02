@@ -12,15 +12,9 @@ if (root_dir / ".env").exists():
 else:
     load_dotenv(dotenv_path=backend_dir / ".env")
 
-# Hämtar väderdata från en stad, returnerar dictionary med relevanta data eller None vid fel
-def get_current_weather(city):
-
-    if not city:
-        return None
-    
-    # Hämtar api-nyckeln från .env 
+# Hämtar väderdata, returnerar dictionary med relevanta data eller None vid fel
+def get_current_weather(lat, lon):
     api_key = os.getenv('OPENWEATHERMAP_API_KEY')
-
     if not api_key:
         return None
     
@@ -29,7 +23,8 @@ def get_current_weather(city):
 
     # Parametrar som skickas med i API-anropet
     params = {
-        "q": city,
+        "lat": lat,
+        "lon": lon,
         "appid": api_key,
         "units": "metric"
     }
@@ -37,22 +32,24 @@ def get_current_weather(city):
     # Skickar HTTP GET-request till API
     response = requests.get(url, params=params)
 
-    # Om APIt inte svarar korrekt
     if response.status_code != 200:
         return None
     
-    # Gör om svaret från JSON till Python-dictionary
     data = response.json()
 
     # Plockar ut relevant info till vårt dictionary
-    weather_data = {
-        "city": data["name"],
-        "temperature": data["main"]["temp"],
-        "description": data["weather"][0]["description"],
-        "wind_speed": data["wind"]["speed"]
-    }
+    try:
 
-    # Returnerar den bearbetade väderdatan
+        weather_data = {
+            "city": data["name"],
+            "temperature": data["main"]["temp"],
+            "description": data["weather"][0]["description"],
+            "wind_speed": data["wind"]["speed"]
+        }
+    except (KeyError, IndexError):
+        return None
+
+    # Returnerar bearbetad väderdata
     return weather_data
 
 #hämtar koordinaterna för staden 

@@ -68,8 +68,13 @@ def api_flights():
 # exempelurl: /current_weather?city=Stockholm
 @app.route('/current_weather')
 def current_weather():
-    city = request.args.get('city')
-    weather_data = get_current_weather(city)
+    lat = request.args.get('lat', type=float)
+    lon = request.args.get('lon', type=float)
+
+    if lat is None or lon is None:
+        return jsonify({"error": "lat and lon required"}), 400
+                           
+    weather_data = get_current_weather(lat, lon)
 
     if not weather_data:
         return jsonify({"Error": "Could not fetch weather data"}), 400
@@ -92,33 +97,33 @@ def monthly_weather():
 @app.route('/search_airports_with_weather')
 def search_airports_with_weather():
 
-    # hämtar användarens inskickade keyword
+    # hämtar sökordet som användaren skickar med i URL:en (t.ex. STO)
     keyword = request.args.get('keyword')
 
     # hämtar flygplatser baserat på keyword
     airports = get_airports(keyword)
 
-    # lista (flyg + väder)
     results = []
 
-    for airport in airports: # loopar igenom varje flygplats 
-
-        city = airport.get("cityName") #försöker hämta stadens namn från Amadeus
-
-        if not city: 
+    for airport in airports: 
+        geo = airport.get("geoCode")
+        if not geo: 
             continue
- 
-        weather = get_current_weather(city) #hämtar väder 
 
+        lat = geo.get("latitude")
+        lon = geo.get("longitude")
+
+        if lat is None or lon is None:
+            continue
+
+        weather = get_current_weather(lat, lon)
         if not weather:
             continue
 
-        combined_result = {
+        results.append({
             "airport": airport,
             "weather": weather
-        }
-
-        results.append(combined_result)
+        })
 
     return jsonify(results)
 
