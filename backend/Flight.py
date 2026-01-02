@@ -64,7 +64,8 @@ def api_flights():
 
 
 # Detta är en endpoint för vårt väder-API som frontend pratar med. Denna endpoint
-# anropar get_weather funtkionen som i sin tur hämtar och bearbetar väderdatan.
+# anropar get_current_weather funtkionen som i sin tur hämtar och bearbetar väderdatan.
+# exempelurl: /current_weather?city=Stockholm
 @app.route('/current_weather')
 def current_weather():
     city = request.args.get('city')
