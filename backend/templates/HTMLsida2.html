@@ -6,132 +6,130 @@
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='CSSsida2.css')}}">
 </head>
 <body>
+<div class="page">
 
-<div id="info_flyg"  class="info">
-    <h1>Info om vald resa flygtid, flygplats, datum osv</h1>
-</div>
+ 
 
-<div id="weatherResult"></div>
-
-<!--används ej-->
-<div id="info_land" class="info">
-    <h1> väder i spanien</h1>
-</div>
-
-<div id="Scrollbar" class="scrollmenu" >
-<div id="Jan" class="weather">
-    <h1>Jan</h1>
-    <h1>25°C</h1>
-
-    <h2>Medel:</h2>
-    <h2>Max:</h2>
-    <h2>Min:</h2>
-
-</div>
-<div id="Feb" class="weather">
-    <h1>Feb</h1>
-</div>
-<div id="Mar" class="weather">
-    <h1>Mar</h1>
-</div>
-<div id="Apr" class="weather">
-    <h1>Apr</h1>
-</div>
-<div id="May" class="weather">
-    <h1>May</h1>
-</div>
-<div id="Jun" class="weather">
-    <h1>Jun</h1>
-</div>
-<div id="Jul" class="weather">
-    <h1>Jul</h1>
-</div>
-<div id="Aug" class="weather">
-    <h1>Aug</h1>
-</div>
-<div id="Sep" class="weather">
-    <h1>Sep</h1>
-</div>
-<div id="Okt" class="weather">
-    <h1>Okt</h1>
-</div>
-<div id="Nov" class="weather">
-    <h1>Nov</h1>
-</div>
-<div id="Dec" class="weather">
-    <h1>Dec</h1>
-</div>
-</div>
-
-
-<div id="scrollFlyg" class="scrollflyg">
-
-    {% if error %}
-      <p>{{ error }}</p>
-    {% endif %}
-  
-    {% if flights and flights|length > 0 %}
-
-      {% if weather %}
-      <div class="destination-weather">
-        <strong>{{ weather.place_label or weather.city}}</strong> –
-        {{ weather.temperature }}°C,
-        {{ weather.description }}
-      </div>
-      {% endif %}
-
-      <div class="flight-list" id="departureList">
-        <h1>Departure flights</h1>
-  
-        {% set dep_count = 0 %} <!-- Counter so we can show a message if no departure flights were found -->
-        {% for f in flights %}  <!-- Loop all flights but only render those tagged as "Departure" -->
-          {% if f.leg == "Departure" %} <!-- Check if the flight is a departure flight -->
-            {% set dep_count = dep_count + 1 %}
-            <div class="flyg">
-              <h2>{{ f.depart_iata }} - {{ f.arrive_iata }}</h2>
-              <p>{{ f.search_date }}</p>
-              <p>{{ f.depart_at }} - {{ f.arrive_at }}</p>
-              <p>Stops: {{ f.stops }} - Duration: {{ f.duration }}</p>
-              <p>Price: {{ f.price }} {{ f.currency }}</p>
-            </div>
-          {% endif %}
-        {% endfor %}
-  
-        {% if dep_count == 0 %}
-          <p>...</p>
-        {% endif %}
-      </div>
-
-      <div class="flight-list" id="returnList">
-        <h1>Return flights</h1>
-  
-        {% set ret_count = 0 %}
-        {% for f in flights %} 
-          {% if f.leg == "Return" %}
-            {% set ret_count = ret_count + 1 %}
-            <div class="flyg">
-              <h2>{{ f.depart_iata }} - {{ f.arrive_iata }}</h2>
-              <p>{{ f.search_date }}</p>
-              <p>{{ f.depart_at }} - {{ f.arrive_at }}</p>
-              <p>Stops: {{ f.stops }} - Duration: {{ f.duration }}</p>
-              <p>Price: {{ f.price }} {{ f.currency }}</p>
-            </div>
-          {% endif %}
-        {% endfor %}
-  
-        {% if ret_count == 0 %}
-          <p>...</p>
-        {% endif %}
-      </div>
-  
-    {% else %}
-      {% if not error %}
-        <p>No flights returned. Try different airports or a different date.</p>
-      {% endif %}
-    {% endif %}
-  
+  <div id="info_flyg"  class="info">
+      <h1>Info om vald resa flygtid, flygplats, datum osv</h1>
   </div>
-  
+
+  <div id="weatherResult"></div>
+
+  <div id="Scrollbar" class="scrollmenu" >
+  <div id="Jan" class="weather">
+      <h1>Jan</h1>
+      <h1>25°C</h1>
+
+      <h2>Medel:</h2>
+      <h2>Max:</h2>
+      <h2>Min:</h2>
+
+  </div>
+  <div id="Feb" class="weather">
+      <h1>Feb</h1>
+  </div>
+  <div id="Mar" class="weather">
+      <h1>Mar</h1>
+  </div>
+  <div id="Apr" class="weather">
+      <h1>Apr</h1>
+  </div>
+  <div id="May" class="weather">
+      <h1>May</h1>
+  </div>
+  <div id="Jun" class="weather">
+      <h1>Jun</h1>
+  </div>
+  <div id="Jul" class="weather">
+      <h1>Jul</h1>
+  </div>
+  <div id="Aug" class="weather">
+      <h1>Aug</h1>
+  </div>
+  <div id="Sep" class="weather">
+      <h1>Sep</h1>
+  </div>
+  <div id="Okt" class="weather">
+      <h1>Okt</h1>
+  </div>
+  <div id="Nov" class="weather">
+      <h1>Nov</h1>
+  </div>
+  <div id="Dec" class="weather">
+      <h1>Dec</h1>
+  </div>
+  </div>
+
+   {% if weather %}
+        <div class="destination-weather">
+          <strong>{{ weather.place_label or weather.city}}</strong> –
+          {{ weather.temperature }}°C,
+          {{ weather.description }}
+        </div>
+        {% endif %}
+
+  <div id="scrollFlyg" class="scrollflyg">
+
+      {% if error %}
+        <p>{{ error }}</p>
+      {% endif %}
+    
+      {% if flights and flights|length > 0 %}
+
+      
+        <div class="flight-list" id="departureList">
+          <h1>Departure flights</h1>
+    
+          {% set dep_count = 0 %} <!-- Counter so we can show a message if no departure flights were found -->
+          {% for f in flights %}  <!-- Loop all flights but only render those tagged as "Departure" -->
+            {% if f.leg == "Departure" %} <!-- Check if the flight is a departure flight -->
+              {% set dep_count = dep_count + 1 %}
+              <div class="flyg">
+                <h2>{{ f.depart_iata }} - {{ f.arrive_iata }}</h2>
+                <p>{{ f.search_date }}</p>
+                <p>{{ f.depart_at }} - {{ f.arrive_at }}</p>
+                <p>Stops: {{ f.stops }} - Duration: {{ f.duration }}</p>
+                <p>Price: {{ f.price }} {{ f.currency }}</p>
+              </div>
+            {% endif %}
+          {% endfor %}
+    
+          {% if dep_count == 0 %}
+            <p>...</p>
+          {% endif %}
+        </div>
+
+        <div class="flight-list" id="returnList">
+          <h1>Return flights</h1>
+    
+          {% set ret_count = 0 %}
+          {% for f in flights %} 
+            {% if f.leg == "Return" %}
+              {% set ret_count = ret_count + 1 %}
+              <div class="flyg">
+                <h2>{{ f.depart_iata }} - {{ f.arrive_iata }}</h2>
+                <p>{{ f.search_date }}</p>
+                <p>{{ f.depart_at }} - {{ f.arrive_at }}</p>
+                <p>Stops: {{ f.stops }} - Duration: {{ f.duration }}</p>
+                <p>Price: {{ f.price }} {{ f.currency }}</p>
+              </div>
+            {% endif %}
+          {% endfor %}
+    
+          {% if ret_count == 0 %}
+            <p>...</p>
+          {% endif %}
+        </div>
+    
+      {% else %}
+        {% if not error %}
+          <p>No flights returned. Try different airports or a different date.</p>
+        {% endif %}
+      {% endif %}
+    
+    </div>
+</div>
 <script src="{{ url_for('static', filename='Flight.js') }}"></script> 
 
 </body>
