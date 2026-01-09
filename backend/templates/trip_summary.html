@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sammanfattning</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSSsida2.css') }}">
+</head>
+<body>
+  <div class="page">
+
+    <div class="card">
+      <h1>Din resa</h1>
+
+      <h2>Utresa</h2>
+      <p><strong>{{ dep.depart_iata }}</strong> → <strong>{{ dep.arrive_iata }}</strong></p>
+      <p>{{ dep.search_date }} • {{ dep.depart_at }} – {{ dep.arrive_at }}</p>
+      <p>Stops: {{ dep.stops }} • Restid: {{ dep.duration }}</p>
+      <p><strong>Pris:</strong> {{ dep.price }} {{ dep.currency }}</p>
+
+      <h2>Hemresa</h2>
+      <p><strong>{{ ret.depart_iata }}</strong> → <strong>{{ ret.arrive_iata }}</strong></p>
+      <p>{{ ret.search_date }} • {{ ret.depart_at }} – {{ ret.arrive_at }}</p>
+      <p>Stops: {{ ret.stops }} • Restid: {{ ret.duration }}</p>
+      <p><strong>Pris:</strong> {{ ret.price }} {{ ret.currency }}</p>
+
+      {% if total_price is not none %}
+        <p class="total"><strong>Totalpris:</strong> {{ "%.2f"|format(total_price) }} {{ dep.currency }}</p>
+      {% endif %}
+
+      <div class="actions">
+        <a class="btn-secondary" href="{{ url_for('results', **session['last_search']) }}">← Tillbaka till resultat</a>
+        <a class="btn-primary" href="#">Bekräfta (fungerar ej)</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
