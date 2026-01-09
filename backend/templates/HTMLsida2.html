@@ -68,6 +68,9 @@
           {{ weather.description }}
         </div>
         {% endif %}
+        <div class="destination-weather">
+          Välj både Utresa och Hemresa
+        </div>
 
   <div id="scrollFlyg" class="scrollflyg">
 
@@ -91,6 +94,12 @@
                 <p>{{ f.depart_at }} - {{ f.arrive_at }}</p>
                 <p>Stops: {{ f.stops }} - Duration: {{ f.duration }}</p>
                 <p>Price: {{ f.price }} {{ f.currency }}</p>
+
+                <form method="GET" action="{{ url_for('select_flight') }}">
+                  <input type="hidden" name="flight_id" value="{{loop.index0}}">
+                  <input type="hidden" name="leg" value="Departure">
+                  <button type="submit" class="select_flight">Välj utresa</button>
+                </form>
               </div>
             {% endif %}
           {% endfor %}
@@ -113,6 +122,12 @@
                 <p>{{ f.depart_at }} - {{ f.arrive_at }}</p>
                 <p>Stops: {{ f.stops }} - Duration: {{ f.duration }}</p>
                 <p>Price: {{ f.price }} {{ f.currency }}</p>
+
+                <form method="GET" action="{{ url_for('select_flight') }}">
+                  <input type="hidden" name="flight_id" value="{{loop.index0}}">
+                  <input type="hidden" name="leg" value="Return">
+                  <button type="submit" class="select_flight">Välj hemresa</button>
+                </form>
               </div>
             {% endif %}
           {% endfor %}

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from services.Amadeus_Api import get_airports, search_flights, get_airport_by_iata
 from services.Weather_Api import get_current_weather, get_coordinates, get_daily_weather, calculate_statistics
 
@@ -28,7 +28,8 @@ def get_destination_weather(arrive_iata):
     weather["place_label"] = airport.get("name") or arrive_iata
     return weather
 
-app = Flask(__name__) 
+app = Flask(__name__)
+app.secret_key = "dev-secret" 
 
 # När man öppnar "http://127.0.0.1:5000/" körs denna funktionen
 # Öppnar HTML filen för användaren
@@ -76,6 +77,17 @@ def results():
         weather = None
         if flights_all:
             weather = get_destination_weather(flights_all[0]["arrive_iata"])
+        
+        session["flights"] = flights_all
+        session["last_search"] = {
+            "whereFrom": where_from,
+            "whereTo": where_to,
+            "departureDate": departure_date,
+            "returnDate": return_date
+        }
+
+        session.pop("selected_departure_id", None)
+        session.pop("selected_return_id", None)
 
         return render_template(
             "HTMLsida2.html", 
@@ -159,6 +171,51 @@ def search_airports_with_weather():
         })
 
     return jsonify(results)
+
+@app.route("/select-flight")
+def select_flight():
+    flight_id = request.args.get("flight_id", type=int)
+    leg = request.args.get("leg", "")
+    last_search = session.get("last_search")
+
+    flights = session.get("flights", [])
+    if flight_id is None or flight_id < 0 or flight_id >= len(flights):
+        return "Invalid flight selecetion.", 400
+    
+    if leg == "Departure":
+        session["selected_departure_id"] = flight_id
+    elif leg == "Return":
+        session["selected_return_id"] = flight_id
+    else:
+        return "Invalid.", 400
+    
+    if session.get("selected_departure_id") is not None and session.get("selected_return_id") is not None:
+        return redirect(url_for("trip_summary"))
+    
+    return redirect(url_for("results", **last_search)) if last_search else redirect(url_for("search"))
+
+@app.route("/trip-summary")
+def trip_summary():
+    flights = session.get("flights", [])
+    dep_id = session.get("selected_departure_id")
+    ret_id = session.get("selected_return_id")
+
+    if dep_id is None or ret_id is None:
+        return redirect(url_for("results", **session["last_search"])) if session.get("last_search") else redirect(url_for("search"))
+
+    if not flights or dep_id >= len(flights) or ret_id >= len(flights):
+        return redirect(url_for("results", **session["last_search"])) if session.get("last_search") else redirect(url_for("search"))
+
+    dep = flights[dep_id]
+    ret = flights[ret_id]
+
+    total_price = None
+    try:
+        total_price = float(dep["price"]) + float(ret["price"])
+    except:
+        pass
+    
+    return render_template("trip_summary.html", dep=dep, ret=ret, total_price=total_price)
 
 # starta programmet
 if __name__ == '__main__':
