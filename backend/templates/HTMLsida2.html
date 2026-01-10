@@ -63,7 +63,7 @@
 
    {% if weather %}
         <div class="destination-weather">
-          <strong>{{ weather.place_label or weather.city}}</strong> –
+          <strong>Väder i ditt resmål just nu: {{ session.last_search.whereTo }}</strong> –
           {{ weather.temperature }}°C,
           {{ weather.description }}
         </div>
