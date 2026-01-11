@@ -81,6 +81,28 @@ def get_coordinates(city):
     
     return data[0]["lat"], data[0]["lon"]
 
+def get_forecast(lat, lon):
+    api_key = os.getenv('OPENWEATHERMAP_API_KEY')
+    url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={api_key}&units=metric"
+
+    response = requests.get(url)
+    if response.status_code != 200:
+        return [];
+
+    data = response.json()
+    daily_forecasts = []
+
+    for item in data['list']:
+        if "12:00:00" in item['dt_txt']:
+            daily_forecasts.append({
+                "date": item['dt_txt'].split(" ")[0], # tar bara datum (YYYY-MM-DD)
+                "temp": round(item['main']['temp']), # avrundar temp
+                "description": item['weather'][0]['description'],
+                "icon": item['weather'][0]['icon'] # ikon kod
+            })
+    return daily_forecasts
+
+
 #för att hämta dagligt väder
 def get_daily_weather(lat,long):
     url = "https://api.openweathermap.org/data/3.0/onecall"

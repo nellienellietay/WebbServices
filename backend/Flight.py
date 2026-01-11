@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from services.Amadeus_Api import get_airports, search_flights, get_airport_by_iata
-from services.Weather_Api import get_current_weather, get_coordinates, get_daily_weather, calculate_statistics
+from services.Weather_Api import get_current_weather, get_coordinates, get_daily_weather, calculate_statistics, get_forecast
 
 def get_destination_weather(arrive_iata):
     """
@@ -62,12 +62,21 @@ def results():
     flights_all = []
     try:
         dep = search_flights(where_from, where_to, departure_date, adults=1, limit=10)
+
+        print(f"DEBUG: Söker flyg från {where_from} till {where_to} datum {departure_date}")
+        print(f"DEBUG: Hittade {len(dep)} avgångar (Departure)")
+
+
         for f in dep:
             f["leg"] = "Departure"
             f["search_date"] = departure_date
         flights_all.extend(dep)
 
         ret = search_flights(where_to, where_from, return_date, adults=1, limit=10)
+
+        print(f"DEBUG: Söker retur från {where_to} till {where_from} datum {return_date}")
+        print(f"DEBUG: Hittade {len(ret)} returresor (Return)")
+
         for f in ret:
             f["leg"] = "Return"
             f["search_date"] = return_date
@@ -125,6 +134,34 @@ def current_weather():
         return jsonify({"Error": "Could not fetch weather data"}), 400
 
     return jsonify(weather_data)
+
+@app.route('/get_forecast')
+def get_forecast_route():
+    location_input = request.args.get('city')
+
+    if not location_input:
+        return jsonify([])
+
+    lat=None
+    lon=None
+
+    if len(location_input) == 3:
+        airport_data = get_airport_by_iata(location_input)
+        if airport_data and "geoCode" in airport_data:
+            lat = airport_data["geoCode"]["latitude"]
+            lon = airport_data["geoCode"]["longitude"]
+            print(f"DEBUG: Hittade flygplatskoordinater via Amadeus: {lat}, {lon}")
+
+    if lat is None:
+        lat,lon = get_coordinates(location_input)
+        print(f"DEBUG: Sökte via stadsnamn för {location_input}: {lat}, {lon}")
+
+    if lat is None:
+        return jsonify({"error": "City not found"}), 404
+
+    forecast_data = get_forecast(lat, lon)
+
+    return jsonify(forecast_data)
 
 
 @app.route('/monthly_weather')
