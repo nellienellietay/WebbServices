@@ -1,6 +1,6 @@
 // hämtar input-fälten
-const fromInput = document.getElementById('fromInput');
-const toInput = document.getElementById('toInput');
+const fromInput = document.getElementById('whereFrom');
+const toInput = document.getElementById('whereTo');
 
 //hämtar listorna från HTML
 const fromList = document.getElementById('fromList');
