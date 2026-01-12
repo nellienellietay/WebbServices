@@ -6,8 +6,12 @@ const toInput = document.getElementById('whereTo');
 const fromList = document.getElementById('fromList');
 const toList = document.getElementById('toList');
 
-// Funktion som kopplar både from och to fälten med en datalist
-// och hämtar från Python
+/**
+ * Kopplar ett inmatningsfält till en <datalist> för autocomplete.
+ * Lyssnar på input och hämtar flygplatsförslag från backend.
+ * @param inputField - Input-fältet där användaren skriver
+ * @param dataListElement - Datalist-elementet som ska fyllas
+ */
 function setupAutoSearch (inputField, dataListElement) {
 
     inputField.addEventListener('input', async function() {
