@@ -57,7 +57,7 @@ def results():
     return_date = request.args.get("returnDate", "")
 
     if not (where_from and where_to and departure_date and return_date):
-        return render_template("results.html", flights=[], error="Missing input.")
+        return render_template("HTMLsida2.html", flights=[], error="Missing input.")
 
     flights_all = []
     try:
@@ -113,14 +113,14 @@ def results():
 
 
         return render_template(
-            "results.html",
+            "HTMLsida2.html", 
             flights=flights_all, 
             weather=weather,
             destination_label=destination_label,
             error=None)
 
     except Exception as e:
-        return render_template("results.html", flights=[], error=str(e))
+        return render_template("HTMLsida2.html", flights=[], error=str(e))
 
 # API endpoint för att hämta flygdata i JSON-format
 @app.route("/api/flights")
