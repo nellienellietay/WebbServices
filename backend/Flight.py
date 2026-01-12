@@ -86,6 +86,17 @@ def results():
         weather = None
         if flights_all:
             weather = get_destination_weather(flights_all[0]["arrive_iata"])
+
+            destination_label = where_to  # fallback = IATA-kod
+
+        if flights_all:
+            airport = get_airport_by_iata(flights_all[0]["arrive_iata"])
+            if airport:
+                destination_label = (
+                    airport.get("address", {}).get("cityName")
+                    or airport.get("name")
+                    or flights_all[0]["arrive_iata"]
+                )
         
         session["flights"] = flights_all
         session["last_search"] = {
@@ -98,10 +109,14 @@ def results():
         session.pop("selected_departure_id", None)
         session.pop("selected_return_id", None)
 
+        print("DEBUG destination_label =", destination_label)
+
+
         return render_template(
             "HTMLsida2.html", 
             flights=flights_all, 
             weather=weather,
+            destination_label=destination_label,
             error=None)
 
     except Exception as e:

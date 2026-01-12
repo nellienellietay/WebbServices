@@ -114,7 +114,7 @@ def search_flights(where_from: str, where_to: str, date: str, adults: int = 1, l
         raise ValueError(f"Invalid IATA. origin='{origin}', dest='{dest}'")
 
     if not date:
-        raise ValueError("Missing departure date")
+        raise ValueError("Saknar hemresa")
 
     url = f"{BASE_URL}/v2/shopping/flight-offers"
     params = {

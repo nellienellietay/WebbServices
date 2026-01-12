@@ -39,7 +39,7 @@
 
     {% if weather %}
         <div class="destination-weather">
-          <strong>Väder i ditt resmål just nu: {{ session.last_search.whereTo }}</strong> –
+          <strong>Väder på ditt resmål just nu: {{ destination_label }}</strong> –
           {{ weather.temperature }}°C,
           {{ weather.description }}
         </div>
@@ -68,8 +68,8 @@
                 <h2>{{ f.depart_iata }} - {{ f.arrive_iata }}</h2>
                 <p>{{ f.search_date }}</p>
                 <p>{{ f.depart_at }} - {{ f.arrive_at }}</p>
-                <p>Stops: {{ f.stops }} - Duration: {{ f.duration }}</p>
-                <p>Price: {{ f.price }} {{ f.currency }}</p>
+                <p>Stopp: {{ f.stops }} - Duration: {{ f.duration }}</p>
+                <p>Pris: {{ f.price }} {{ f.currency }}</p>
                 <div class="sun-rating" data-price="{{ f.price }}">
                   Laddar rating...
                 </div>
@@ -99,8 +99,8 @@
                 <h2>{{ f.depart_iata }} - {{ f.arrive_iata }}</h2>
                 <p>{{ f.search_date }}</p>
                 <p>{{ f.depart_at }} - {{ f.arrive_at }}</p>
-                <p>Stops: {{ f.stops }} - Duration: {{ f.duration }}</p>
-                <p>Price: {{ f.price }} {{ f.currency }}</p>
+                <p>Stopp: {{ f.stops }} - Duration: {{ f.duration }}</p>
+                <p>Pris: {{ f.price }} {{ f.currency }}</p>
                 <div class="sun-rating" data-price="{{ f.price }}">
                   Laddar rating...
                 </div>
