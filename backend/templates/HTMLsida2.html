@@ -10,9 +10,9 @@
 
  
 
-  <div id="info_flyg"  class="info">
-      <h1>Info om vald resa flygtid, flygplats, datum osv</h1>
-  </div>
+<!--  <div id="info_flyg"  class="info">-->
+<!--      <h1>Info om vald resa flygtid, flygplats, datum osv</h1>-->
+<!--  </div>-->
 
 
 
@@ -27,6 +27,14 @@
 
   <div id="weatherResult"></div>
   <input type="hidden" id="destinationCity" value="{{ session.last_search.whereTo }}">
+
+  <div id="sunIndexContainer"></div>
+
+  {% if flights and flights|length > 0%}
+    <input type="hidden" id="flightPriceInfo" value="{{ flights[0].price }}">
+  {% else %}
+    <input type="hidden" id="flightPriceInfo" value="0">
+  {% endif %}
 
 
     {% if weather %}
@@ -62,6 +70,9 @@
                 <p>{{ f.depart_at }} - {{ f.arrive_at }}</p>
                 <p>Stops: {{ f.stops }} - Duration: {{ f.duration }}</p>
                 <p>Price: {{ f.price }} {{ f.currency }}</p>
+                <div class="sun-rating" data-price="{{ f.price }}">
+                  Laddar rating...
+                </div>
 
                 <form method="GET" action="{{ url_for('select_flight') }}">
                   <input type="hidden" name="flight_id" value="{{loop.index0}}">
@@ -90,6 +101,9 @@
                 <p>{{ f.depart_at }} - {{ f.arrive_at }}</p>
                 <p>Stops: {{ f.stops }} - Duration: {{ f.duration }}</p>
                 <p>Price: {{ f.price }} {{ f.currency }}</p>
+                <div class="sun-rating" data-price="{{ f.price }}">
+                  Laddar rating...
+                </div>
 
                 <form method="GET" action="{{ url_for('select_flight') }}">
                   <input type="hidden" name="flight_id" value="{{loop.index0}}">
