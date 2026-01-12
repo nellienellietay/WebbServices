@@ -50,7 +50,7 @@ function setupAutoSearch (inputField, dataListElement) {
 }
 
 // Guard: autocomplete ska bara aktiveras på sidor där sökfält finns 
-// och det finns ej på results.html. Denna Guard säkerställer att koden endast körs när det finns sökfält.
+// och det finns ej på HTMLsida2.html. Denna Guard säkerställer att koden endast körs när det finns sökfält.
 
 if (fromInput && fromList) {
     setupAutoSearch(fromInput, fromList);
