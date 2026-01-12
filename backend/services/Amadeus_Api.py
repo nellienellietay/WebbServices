@@ -123,7 +123,7 @@ def search_flights(where_from: str, where_to: str, date: str, adults: int = 1, l
         "departureDate": date,
         "adults": adults,
         "max": limit,
-        "currencyCode": "EUR",
+        "currencyCode": "SEK",
     }
 
     r = requests.get(url, headers=_auth_headers(), params=params, timeout=20)
