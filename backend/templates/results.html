@@ -59,7 +59,12 @@
               <div class="flyg">
                 <h2>{{ f.depart_iata }} - {{ f.arrive_iata }}</h2>
                 <p>{{ f.search_date }}</p>
-                <p>{{ f.depart_at }} - {{ f.arrive_at }}</p>
+                <p>
+                  {{ f.depart_at }} - {{ f.arrive_at }}
+                  {% if f.day_diff %}
+                    <sup style="color: red; font-weight: bold; font-size: 10px;">{{ f.day_diff }}</sup>
+                  {% endif %}
+                </p>
                 <p>Stopp: {{ f.stops }} - Duration: {{ f.duration }}</p>
                 <p>Pris: {{ f.price }} {{ f.currency }}</p>
                 <div class="sun-rating" data-price="{{ f.price }}">

@@ -2,6 +2,7 @@ import os
 import re
 import time
 from pathlib import Path
+from datetime import datetime
 
 import requests
 from dotenv import load_dotenv
@@ -146,15 +147,35 @@ def search_flights(where_from: str, where_to: str, date: str, adults: int = 1, l
         first = segs[0]
         last = segs[-1]
 
+        raw_dep = first.get("departure", {}).get("at", "")
+        raw_arr = last.get("arrival", {}).get("at", "")
+
+        day_indicator = "";
+        try:
+            dep_date_str = raw_dep.split("T")[0]
+            arr_date_str = raw_arr.split("T")[0]
+
+            # Gör om till datum objekt
+            d1 = datetime.strptime(dep_date_str, "%Y-%m-%d")
+            d2 = datetime.strptime(arr_date_str, "%Y-%m-%d")
+
+            diff = (d2 - d1).days
+
+            if diff > 0:
+                day_indicator = f"+{diff}"
+        except Exception:
+            pass
+
         flights.append({
             "price": offer.get("price", {}).get("total"),
             "currency": offer.get("price", {}).get("currency"),
-            "depart_at": first.get("departure", {}).get("at"),
+            "depart_at": raw_dep.split("T")[1][:5] if "T" in raw_dep else raw_dep,
             "depart_iata": first.get("departure", {}).get("iataCode"),
-            "arrive_at": last.get("arrival", {}).get("at"),
+            "arrive_at": raw_arr.split("T")[1][:5] if "T" in raw_arr else raw_arr,
             "arrive_iata": last.get("arrival", {}).get("iataCode"),
             "stops": max(len(segs) - 1, 0),
-            "duration": itin.get("duration", ""),
+            "duration": itin.get("duration", "").replace("PT", "").replace("H", "h ").replace("M", "m"),
+            "day_diff": day_indicator
         })
 
     return flights
