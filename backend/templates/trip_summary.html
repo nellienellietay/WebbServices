@@ -14,14 +14,28 @@
 
       <h2>Utresa</h2>
       <p><strong>{{ dep.depart_iata }}</strong> → <strong>{{ dep.arrive_iata }}</strong></p>
-      <p>{{ dep.search_date }} • {{ dep.depart_at }} – {{ dep.arrive_at }}</p>
-      <p>Stops: {{ dep.stops }} • Restid: {{ dep.duration }}</p>
+      <p>
+        {{ dep.search_date }} • {{ dep.depart_at }} – {{ dep.arrive_at }}
+        {% if dep.day_diff %}
+        <sup style="color: red; font-weight: bold; font-size: 10px;">
+          {{ dep.day_diff }}
+          </sup>
+          {% endif %}
+      </p>
+      <p>Stopp: {{ dep.stops }} • Restid: {{ dep.duration }}</p>
       <p><strong>Pris:</strong> {{ dep.price }} {{ dep.currency }}</p>
 
       <h2>Hemresa</h2>
       <p><strong>{{ ret.depart_iata }}</strong> → <strong>{{ ret.arrive_iata }}</strong></p>
-      <p>{{ ret.search_date }} • {{ ret.depart_at }} – {{ ret.arrive_at }}</p>
-      <p>Stops: {{ ret.stops }} • Restid: {{ ret.duration }}</p>
+      <p>
+        {{ ret.search_date }} • {{ ret.depart_at }} – {{ ret.arrive_at }}
+        {% if ret.day_diff %}
+        <sup style="color: red; font-weight: bold; font-size: 10px;">
+          {{ ret.day_diff }}
+          </sup>
+          {% endif %}
+      </p>
+      <p>Stopp: {{ ret.stops }} • Restid: {{ ret.duration }}</p>
       <p><strong>Pris:</strong> {{ ret.price }} {{ ret.currency }}</p>
 
       {% if total_price is not none %}
