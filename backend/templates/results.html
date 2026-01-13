@@ -37,7 +37,7 @@
         </div>
         {% endif %}
         <div class="destination-weather">
-          Välj både Utresa och Hemresa
+          Välj både utresa och hemresa
         </div>
 
   <div id="scrollFlyg" class="scrollflyg">
@@ -50,7 +50,7 @@
 
       
         <div class="flight-list" id="departureList">
-          <h1>Departure flights</h1>
+          <h1>Avgångsflyg</h1>
     
           {% set dep_count = 0 %} <!-- Counter so we can show a message if no departure flights were found -->
           {% for f in flights %}  <!-- Loop all flights but only render those tagged as "Departure" -->
@@ -65,7 +65,7 @@
                     <sup style="color: red; font-weight: bold; font-size: 10px;">{{ f.day_diff }}</sup>
                   {% endif %}
                 </p>
-                <p>Stopp: {{ f.stops }} - Duration: {{ f.duration }}</p>
+                <p>Stopp: {{ f.stops }} - Flygtid: {{ f.duration }}</p>
                 <p>Pris: {{ f.price }} {{ f.currency }}</p>
                 <div class="sun-rating" data-price="{{ f.price }}">
                   Laddar rating...
@@ -86,7 +86,7 @@
         </div>
 
         <div class="flight-list" id="returnList">
-          <h1>Return flights</h1>
+          <h1>Hemresa</h1>
     
           {% set ret_count = 0 %}
           {% for f in flights %} 
@@ -96,7 +96,7 @@
                 <h2>{{ f.depart_iata }} - {{ f.arrive_iata }}</h2>
                 <p>{{ f.search_date }}</p>
                 <p>{{ f.depart_at }} - {{ f.arrive_at }}</p>
-                <p>Stopp: {{ f.stops }} - Duration: {{ f.duration }}</p>
+                <p>Stopp: {{ f.stops }} - Flygtid: {{ f.duration }}</p>
                 <p>Pris: {{ f.price }} {{ f.currency }}</p>
                 <div class="sun-rating" data-price="{{ f.price }}">
                   Laddar rating...
