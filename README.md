@@ -1,5 +1,9 @@
 # WebbServices
 
+Körning av programmet:
+Programmet körsf från Flight.py
+
+
 ## Viktigt om flygsökning (IATA-koder)
 
 Flygsökningen i applikationen använder Amadeus Flight Offers API, som
