@@ -38,8 +38,8 @@ def search():
     return render_template('search.html') 
 
 # Detta är en endpoint. Vår browser pratar med denna, inte med Amadeus direkt.
-# T.ex /search_airports?keyword=HEA
-@app.route("/search_airports")
+# T.ex GET /api/v1/airports/search?keyword=HEA
+@app.route("/api/v1/airports/search")
 def search_airports():
     keyword = request.args.get("keyword", "")
     try:
@@ -49,7 +49,7 @@ def search_airports():
 
 
 # Öppnar nästa HTML sida och hämtar flygresultat
-@app.route("/results")
+@app.route("/search-results")
 def results():
     where_from = request.args.get("whereFrom", "")
     where_to = request.args.get("whereTo", "")
@@ -123,7 +123,7 @@ def results():
         return render_template("results.html", flights=[], error=str(e))
 
 # API endpoint för att hämta flygdata i JSON-format
-@app.route("/api/flights")
+@app.route("/api/v1/flights")
 def api_flights():
     where_from = request.args.get("whereFrom", "")
     where_to = request.args.get("whereTo", "")
@@ -134,8 +134,8 @@ def api_flights():
 
 # Detta är en endpoint för vårt väder-API som frontend pratar med. Denna endpoint
 # anropar get_current_weather funtkionen som i sin tur hämtar och bearbetar väderdatan.
-# exempelurl: /current_weather?city=Stockholm
-@app.route('/current_weather')
+# exempelurl: GET /api/v1/weather/current?city=Stockholm
+@app.route('/api/v1/weather/current')
 def current_weather():
     lat = request.args.get('lat', type=float)
     lon = request.args.get('lon', type=float)
@@ -150,7 +150,8 @@ def current_weather():
 
     return jsonify(weather_data)
 
-@app.route('/get_forecast')
+# GET /api/v1/weather/forecast?city=Stockholm
+@app.route('/api/v1/weather/forecast')
 def get_forecast_route():
     location_input = request.args.get('city')
 
@@ -179,7 +180,7 @@ def get_forecast_route():
     return jsonify(forecast_data)
 
 
-@app.route('/monthly_weather')
+@app.route('/api/v1/weather/monthly')
 def monthly_weather():
     city = request.args.get('city')
 
@@ -190,8 +191,8 @@ def monthly_weather():
     return jsonify(stats)
 
 # mashup-endpoint som kombinerar flyg & aktuellt väder
-# exempel: /search_airports_with_weather?keyword=STO
-@app.route('/search_airports_with_weather')
+# exempel: /api/v1/mashup/airports-with-weather?keyword=STO
+@app.route('/api/v1/mashup/airports-with-weather')
 def search_airports_with_weather():
 
     # hämtar sökordet som användaren skickar med i URL:en (t.ex. STO)
@@ -224,7 +225,7 @@ def search_airports_with_weather():
 
     return jsonify(results)
 
-@app.route("/select-flight")
+@app.route("/actions/select-flight")
 def select_flight():
     flight_id = request.args.get("flight_id", type=int)
     leg = request.args.get("leg", "")
