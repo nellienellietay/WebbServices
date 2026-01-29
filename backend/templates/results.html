@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Flight Weather</title>
+    <title>Flight Weather Maumondo</title>
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='results.css')}}">
 </head>
 <body>
@@ -18,7 +18,7 @@
   </template>
 
   <div id="weatherResult"></div>
-  <input type="hidden" id="destinationCity" value="{{ session.last_search.whereTo }}">
+  <input type="hidden" id="destinationCity" value="{{ session.get('last_search', {}).get('whereTo', '') }}">
 
   <div id="sunIndexContainer"></div>
 

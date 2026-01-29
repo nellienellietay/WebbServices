@@ -41,20 +41,22 @@ def search():
 # T.ex GET /api/v1/airports/search?keyword=HEA
 @app.route("/api/v1/airports/search")
 def search_airports():
-    keyword = request.args.get("keyword", "")
-    try:
-        return jsonify(get_airports(keyword)) # anropar funktionen i Amadeus_Api.py
-    except Exception as e:
-            return jsonify({"error": str(e)}), 500
+    keyword = request.args.get("keyword", "").strip()
+    if len(keyword) < 3:
+        return jsonify({"error": "keyword must be at least 3 characters"}), 400
 
+    try:
+        return jsonify(get_airports(keyword)), 200
+    except Exception:
+        return jsonify({"error": "failed to fetch airports"}), 503
 
 # Öppnar nästa HTML sida och hämtar flygresultat
 @app.route("/search-results")
 def results():
-    where_from = request.args.get("whereFrom", "")
-    where_to = request.args.get("whereTo", "")
-    departure_date = request.args.get("departureDate", "")
-    return_date = request.args.get("returnDate", "")
+    where_from = request.args.get("whereFrom", "").strip()
+    where_to = request.args.get("whereTo", "").strip()
+    departure_date = request.args.get("departureDate", "").strip()
+    return_date = request.args.get("returnDate", "").strip()
 
     if not (where_from and where_to and departure_date and return_date):
         return render_template("results.html", flights=[], error="Missing input.")
@@ -81,6 +83,10 @@ def results():
             f["leg"] = "Return"
             f["search_date"] = return_date
         flights_all.extend(ret)
+        
+# om inga flyg hittas, visa ett tydligt felmeddelande
+        if not flights_all:
+            return render_template("results.html", flights=[], error="No flights found for your search.")
 
         ## Hämtar aktuellt väder för destinationen
         weather = None
@@ -120,16 +126,25 @@ def results():
             error=None)
 
     except Exception as e:
-        return render_template("results.html", flights=[], error=str(e))
+        print("ERROR in /search-results:", str(e))
+        return render_template("results.html", flights=[], error="Something went wrong. Please try again.")
 
 # API endpoint för att hämta flygdata i JSON-format
 @app.route("/api/v1/flights")
 def api_flights():
-    where_from = request.args.get("whereFrom", "")
-    where_to = request.args.get("whereTo", "")
-    date = request.args.get("date", "")
-    return jsonify(search_flights(where_from, where_to, date, adults=1, limit=10))
+    where_from = request.args.get("whereFrom", "").strip()
+    where_to = request.args.get("whereTo", "").strip()
+    date = request.args.get("date", "").strip()
+    if not (where_from and where_to and date):
+        return jsonify({"error": "whereFrom, whereTo and date are required"}), 400
 
+    try:
+        flights = search_flights(where_from, where_to, date, adults=1, limit=10)
+        return jsonify(flights), 200
+    except Exception as e:
+        print("ERROR in /api/v1/flights:", str(e))
+        return jsonify({"error": "Failed to fetch flights"}), 503
+    
 
 
 # Detta är en endpoint för vårt väder-API som frontend pratar med. Denna endpoint
@@ -153,24 +168,27 @@ def current_weather():
 # GET /api/v1/weather/forecast?city=Stockholm
 @app.route('/api/v1/weather/forecast')
 def get_forecast_route():
-    location_input = request.args.get('city')
-
+    location_input = request.args.get('city').strip()
+    
+# saknad input = 400
     if not location_input:
-        return jsonify([])
+        return jsonify({"error": "city is required"}), 400
 
     lat=None
     lon=None
 
-    if len(location_input) == 3:
+    if len(location_input) == 3: 
         airport_data = get_airport_by_iata(location_input)
         if airport_data and "geoCode" in airport_data:
             lat = airport_data["geoCode"]["latitude"]
             lon = airport_data["geoCode"]["longitude"]
             print(f"DEBUG: Hittade flygplatskoordinater via Amadeus: {lat}, {lon}")
-
+            
+#annars försök via stadsnamn
     if lat is None:
         lat,lon = get_coordinates(location_input)
         print(f"DEBUG: Sökte via stadsnamn för {location_input}: {lat}, {lon}")
+        
 
     if lat is None:
         return jsonify({"error": "City not found"}), 404

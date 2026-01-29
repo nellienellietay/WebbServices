@@ -62,19 +62,22 @@ function updateFlightRatings(avgTemp) {
 async function fetchAndDisplayWeather(city) {
     if (!city) return;
 
+    try {
+        const container = document.getElementById("weatherResult");
 
-    try{
+        const response = await fetch(`/api/v1/weather/forecast?city=${encodeURIComponent(city)}`);
 
-        const response = await fetch(`/api/v1/weather/forecast?city=${city}`);
-
-        if(!response.ok){
-            throw new Error("Weather request failed");
+        if (!response.ok) {
+            if (container) {
+                if (response.status === 400) container.innerHTML = "<p>Missing destination.</p>";
+                else if (response.status === 404) container.innerHTML = "<p>Destination not found.</p>";
+                else container.innerHTML = "<p>Weather service unavailable.</p>";
+            }
+            return;
         }
 
         const forecastList = await response.json();
 
-        //väljer var vi vill visa resultatet
-        const container = document.getElementById("weatherResult");
         const template = document.getElementById("weather-card-template");
 
         if (!template) {
@@ -82,7 +85,6 @@ async function fetchAndDisplayWeather(city) {
             return
         }
 
-        // Rubrik
         container.innerHTML = `<h3>5-dagars prognos för ${city}</h3>`;
 
         const cardsContainer = document.createElement('div');
@@ -90,7 +92,6 @@ async function fetchAndDisplayWeather(city) {
 
         let totalTemp = 0;
 
-        // Skapa kort för varje dag
         forecastList.forEach(day => {
             const clone = template.content.cloneNode(true);
             clone.querySelector('.date').textContent = day.date;
@@ -102,9 +103,9 @@ async function fetchAndDisplayWeather(city) {
 
             totalTemp += day.temp;
         });
+
         container.appendChild(cardsContainer);
 
-        // Om vi har väderdata, räkna ut snittet och uppdatera flyglistan
         if (forecastList.length > 0) {
             const averageTemp = Math.round(totalTemp / forecastList.length);
             updateFlightRatings(averageTemp)
@@ -114,6 +115,7 @@ async function fetchAndDisplayWeather(city) {
         console.error(error);
     }
 }
+
 
 // Initiera vädersökning om vi är på resultatsidan
 const destinationInput = document.getElementById('destinationCity');

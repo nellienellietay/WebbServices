@@ -24,10 +24,24 @@ function setupAutoSearch (inputField, dataListElement) {
 
         try {
             // Skickar keyword till vår python "/search_airports"
-            const response = await fetch(`/api/v1/airports/search?keyword=${keyword}`);
+            const response = await fetch(`/api/v1/airports/search?keyword=${encodeURIComponent(keyword)}`);
+
+            // NEW: om backend svarar 400/503 osv - avbryt
+            if (!response.ok) {
+                console.error("Airport search failed:", response.status);
+                dataListElement.innerHTML = '';
+                return;
+            }
 
             // Gör om text till ett användbart JS objekt
             const airports = await response.json();
+
+            // NEW: säkerställ att vi faktiskt fick en lista
+            if (!Array.isArray(airports)) {
+                console.error("Unexpected response:", airports);
+                dataListElement.innerHTML = '';
+                return;
+            }
 
             // Ta bort gamla resultat
             dataListElement.innerHTML = '';
@@ -42,7 +56,6 @@ function setupAutoSearch (inputField, dataListElement) {
                 // iata koden som är den unika koden för flygplatserna
                 option.value = airport.iataCode;
                 option.label = airport.name; // visar namnet i dropdown
-
 
                 // Lägger till option i dataList containern
                 dataListElement.appendChild(option);
