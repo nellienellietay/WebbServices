@@ -65,7 +65,7 @@ async function fetchAndDisplayWeather(city) {
 
     try{
 
-        const response = await fetch(`/get_forecast?city=${city}`);
+        const response = await fetch(`/api/v1/weather/forecast?city=${city}`);
 
         if(!response.ok){
             throw new Error("Weather request failed");

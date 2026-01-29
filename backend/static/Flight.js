@@ -24,7 +24,7 @@ function setupAutoSearch (inputField, dataListElement) {
 
         try {
             // Skickar keyword till vår python "/search_airports"
-            const response = await fetch(`/search_airports?keyword=${keyword}`);
+            const response = await fetch(`/api/v1/airports/search?keyword=${keyword}`);
 
             // Gör om text till ett användbart JS objekt
             const airports = await response.json();
